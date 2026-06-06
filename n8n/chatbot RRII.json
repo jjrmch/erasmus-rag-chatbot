@@ -1,0 +1,293 @@
+{
+  "name": "chatbot RRII",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## AGENTE CHAT SECRETARÍA",
+        "height": 481,
+        "width": 844
+      },
+      "id": "a66b5842-44d0-43f8-9db3-9ce88d10119d",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 3
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -752,
+        240
+      ],
+      "id": "3b826c86-02fa-479c-80c8-daca306983c6",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "loadPreviousSession": "memory",
+          "responseMode": "responseNode"
+        }
+      },
+      "id": "f336bc51-bdd0-48bd-8be4-788c081e63a7",
+      "name": "Cuando llega un mensaje",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -912,
+        64
+      ],
+      "webhookId": "ad4db6d1-9e47-45a4-86e1-b90967df9957"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "Eres un asistente de secretaría que puede consultar una base de datos PostgreSQL y llamar a herramientas.\n\nTABLAS DISPONIBLES:\n\n1. historial_chat (sessionid UUID, fecha DATE, conversacion TEXT)\n   - Almacena historial de conversaciones del chatbot\n\n2. historial_problemas (sessionid UUID, fecha DATE, nombre VARCHAR, correo VARCHAR, problema TEXT, respuesta TEXT, resuelto VARCHAR)\n   - Almacena problemas que requieren atención de secretaría\n   -El problema es la pregunta del alumno\n   - Respuesta es la solución que dio el llm\n   - resuelto puede ser 'SI' o 'NO'\n\n3. ficheros_diarios (file_path TEXT, file_date DATE, status TEXT)\n   - Almacena ficheros procesados diariamente\n   - status puede ser 'pending', 'procesado' o 'error_procesado'.\n\n## TU PROCESO DE RAZONAMIENTO\n\nAntes de responder, SIEMPRE sigue estos pasos:\n\n1. **Analiza la pregunta**: Identifica qué información necesitas\n2. **Planifica las herramientas**: Determina qué herramientas necesitas y en qué orden\n3. **Ejecuta secuencialmente**: Llama a las herramientas en el orden correcto\n4. **Sintetiza la respuesta**: Combina los resultados y responde tal cual te devuelve la herramienta.\n\n## REGLAS IMPORTANTES\n\n### Manejo de Fechas Relativas\nCuando el usuario mencione tiempos relativos, DEBES:\n1. Llamar primero a la herramienta \"Date & Time\"\n2. Calcular la fecha correspondiente basándote en la fecha actual\n3. Usar esa fecha calculada en las siguientes consultas\n\n**Ejemplos de fechas relativas:**\n- \"ayer\" → fecha actual - 1 día\n- \"la semana pasada\" → últimos 7 días desde hoy\n- \"el mes pasado\" → desde el día 1 del mes anterior hasta el último día\n- \"hace 3 días\" → fecha actual - 3 días\n\nIMPORTANTE:\nSi la query devuelve información extensa has de devolver todo el texto, o en su defecto responder correctamente a la pregunta del usuario con la información de la query.\n\nSi te piden que quieren ver la base de datos devuelve el siguiente enlace db.uhuchatbot.org",
+          "returnIntermediateSteps": true
+        }
+      },
+      "id": "deb91e05-315f-47df-a84d-aebe6abc1e8a",
+      "name": "Agente herramientas",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -592,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "path": "2ad016e6-607c-46ba-b0dd-18df28355572"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        64
+      ],
+      "id": "968235d8-6a4e-47ac-99b4-b363205a91d3",
+      "name": "MCP Server Trigger",
+      "webhookId": "2ad016e6-607c-46ba-b0dd-18df28355572"
+    },
+    {
+      "parameters": {
+        "content": "## Herramientas MCP\n",
+        "height": 480,
+        "width": 432,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "28953b34-8fee-4b22-b823-0f727281cfaf",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Esta herramienta te devuelve la fecha actual",
+        "options": {
+          "timezone": "CET"
+        }
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        208,
+        288
+      ],
+      "id": "e0800226-863e-4a18-852b-ec29d13320fc",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://192.168.1.97:5678/mcp/2ad016e6-607c-46ba-b0dd-18df28355572",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        256
+      ],
+      "id": "5dbb0960-a91a-4be6-8187-13bd4c23b0c6",
+      "name": "Herramientas base de datos"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -288,
+        64
+      ],
+      "id": "d6fcfffb-6324-46af-9e49-17efce3cb85a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "EJECUTA UNA QUERY PERSONALIZADA A LA BASE DE DATOS",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI('query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        288
+      ],
+      "id": "a4f05680-edcc-476c-b0ff-367223f376b1",
+      "name": "Execute a SQL query in Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "j6PT8ztSesEqD643",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b-q4_K_M",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        352
+      ],
+      "id": "e657d268-cfa9-4be5-a667-3245a3595e0c",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "R5sz5q6jx10FnB3O",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente herramientas",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Cuando llega un mensaje",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cuando llega un mensaje": {
+      "main": [
+        [
+          {
+            "node": "Agente herramientas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente herramientas": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Herramientas base de datos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente herramientas",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Execute a SQL query in Postgres": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente herramientas",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/Madrid"
+  },
+  "versionId": "0683ba3d-8a08-44f6-bb02-c23f8ce1f434",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "wG3FQaYeXakiclrg",
+  "tags": []
+}
