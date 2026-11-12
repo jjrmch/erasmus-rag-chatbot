@@ -115,15 +115,14 @@ Copia `.env.example` como `.env` y ajusta los valores. Los workflows de n8n nece
 
 ## Seguridad y privacidad
 
-- **LLM local:** los modelos principales y los embeddings se ejecutan con Ollama en el servidor, sin enviar la documentación a una API externa.
+- **LLM local:** los modelos principales y los embeddings se ejecutan con Ollama en el servidor. El workflow incluye un nodo auxiliar de OpenRouter; para un pipeline 100 % local habría que eliminarlo.
 - **Datos:** la documentación y las conversaciones viven en PostgreSQL y Qdrant del entorno universitario.
 - **Acceso:** el chat de RRII está pensado para personal interno; conviene revisar y documentar la autenticación del acceso.
 - **Riesgos a cubrir:** prompt injection a través de documentos o correos, permisos de la herramienta SQL, datos personales en conversaciones y retención de logs.
-- **Mejora:** revisar el nodo auxiliar de OpenRouter para que todo el pipeline sea 100 % local.
 
 ## Limitaciones y mejoras
 
-- No hay una evaluación formal de retrieval (faithfulness, relevance); la validación fue cualitativa con la ORI.
+- El repositorio no incluye una evaluación formal de retrieval (faithfulness, relevance); la validación documentada fue cualitativa con la ORI.
 - Los workflows de n8n no tienen tests automatizados ni CI.
 - La autenticación y autorización del chat de RRII están pendientes de revisar.
 - Faltan métricas, trazas y alertas de observabilidad.
