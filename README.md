@@ -29,7 +29,7 @@ El sistema se desplegó en un servidor universitario con GPU y se validó con la
 flowchart LR
     A[Alumnos] --> C1[Chat Erasmus]
     S[RRII] --> C2[Chat RRII]
-    G[Google Drive / Gmail / ficheros] --> N1[n8n: pipeline RAG]
+    G[Google Drive / correos .eml / ficheros] --> N1[n8n: pipeline RAG]
     C1 --> N1
     N1 --> Q[(Qdrant)]
     N1 --> P[(PostgreSQL)]
@@ -42,7 +42,7 @@ flowchart LR
 
 ### Pipeline RAG
 
-1. **Ingesta:** Google Drive, Gmail y ficheros locales; extracción de PDF, DOCX, EML y XLSX.
+1. **Ingesta:** Google Drive, correos .eml y ficheros locales; extracción de PDF, DOCX, EML y XLSX.
 2. **Preparación:** limpieza, chunking recursivo y cálculo de hash para evitar duplicados.
 3. **Indexación:** embeddings con Ollama y almacenamiento en Qdrant; reindexado cuando cambia la documentación.
 4. **Consulta:** clasificador de entrada, recuperación semántica en Qdrant, reranking con Cohere y respuesta con un LLM local.
@@ -63,7 +63,7 @@ flowchart LR
 | LLM y embeddings | Ollama (modelos locales); OpenRouter en un nodo auxiliar del workflow |
 | Base vectorial | Qdrant |
 | Base relacional | PostgreSQL |
-| Ingesta | Google Drive, Gmail, ficheros locales; PDF, DOCX, EML, XLSX |
+| Ingesta | Google Drive, correos .eml, ficheros locales; PDF, DOCX, EML, XLSX |
 | Reranking | Cohere |
 | Infraestructura | Docker Compose (perfiles `cpu`, `gpu-nvidia`, `gpu-amd`) |
 | Administración | pgweb, Adminer |
@@ -88,7 +88,7 @@ docker compose --profile cpu up -d   # o gpu-nvidia / gpu-amd
 
 ## Configuración
 
-Copia `.env.example` como `.env` y ajusta los valores. Los workflows de n8n necesitan credenciales de Google Drive/Gmail para la ingesta y el envío de correos, y acceso a PostgreSQL, Qdrant y Ollama.
+Copia `.env.example` como `.env` y ajusta los valores. Los workflows de n8n necesitan credenciales de Google Drive para la ingesta y de Gmail para las notificaciones, además de acceso a PostgreSQL, Qdrant y Ollama.
 
 > Las carpetas `shared/`, `correos_descartados/` y `procesar_sin_comprobar/` contienen un `.gitkeep` para que Git las rastree. Elimínalos con `find . -name ".gitkeep" -delete` antes de añadir contenido real.
 
